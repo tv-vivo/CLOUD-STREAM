@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador FireGo</title>
+    <script src="https://ssl.p.jwpcdn.com/player/v/8.18.4/jwplayer.js"></script>
+    <script type="text/javascript">jwplayer.key = "W7zSm81+mmIsg7F+fyHRKhF3ggLkTqtGMhvI92kbqf/ysE99";</script>
+    <style type="text/css">
+        html, body {
+            padding: 0;
+            margin: 0;
+            height: 100%;
+            font-family: 'Outfit',sans-serif;
+            background-color: #000;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #181818;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .logo {
+            margin-bottom: 20px;
+        }
+        .logo img {
+            max-width: 100%;
+            height: auto;
+            width: 200px; /* Ajusta el tamaño del logo según sea necesario */
+        }
+        .controls {
+            margin-bottom: 20px;
+        }
+        .controls input {
+            width: calc(100% - 22px);
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            margin-bottom: 10px; /* Espacio entre input y botón */
+            box-sizing: border-box; /* Asegura que el padding no sobresalga del ancho */
+        }
+        .controls button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            background-color: black;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        .controls button:hover {
+            background-color: #0056b3;
+        }
+        .controls button:active {
+            transform: scale(0.98);
+        }
+        .link-container {
+            display: none; /* Oculto por defecto */
+            margin-top: 20px;
+            padding: 0; /* Eliminamos el padding para ajustar el iframe */
+            background-color: #e9ecef;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            overflow: hidden; /* Esto ayuda a que el iframe se ajuste al borde redondeado */
+            height: 0; /* Establecemos altura inicial en 0 para después ajustarla */
+            position: relative;
+            padding-bottom: 56.25%; /* Relación de aspecto 16:9 */
+        }
+        .link-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+        .copy-button {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            background-color: black;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+        }
+        .copy-button:hover {
+            background-color: #0056b3;
+            box-shadow: 0 6px 12px rgba(0, 123, 255, 0.4);
+            transform: translateY(-2px);
+        }
+        .copy-button:active {
+            transform: scale(0.98);
+            background-color: #004080;
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+                margin: 20px;
+            }
+            .controls input {
+                width: calc(100% - 20px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <img src="https://i.ibb.co/f2BsH4H/1000014449-removebg-preview.png" alt="Logo CanalGat">
+        </div>
+        <div class="controls">
+            <input type="text" id="videoUrl" placeholder="Ingresar url en formato mp4" />
+            <button onclick="generateLink()">Generar Reproductor</button>
+        </div>
+        <div class="link-container" id="generatedLink">
+            <!-- La vista previa del reproductor se insertará aquí -->
+        </div>
+        <button class="copy-button" id="copyLinkButton" onclick="copyLinkToClipboard()" style="display: none;">Copiar Enlace</button> <!-- Oculto por defecto -->
+    </div>
+    
+    <script type="text/javascript">
+    function encodeBase64(str) {
+        return btoa(unescape(encodeURIComponent(str)));
+    }
+
+    function generateLink() {
+        var url = document.getElementById('videoUrl').value;
+        if (url) {
+            var encodedUrl = encodeBase64(url);
+            var playerPageUrl = "https://cloudstream-pro.onrender.com/prueba?videoUrl=" + encodedUrl;
+
+            var iframeCode = '<iframe src="' + playerPageUrl + '" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+            
+            var generatedLinkContainer = document.getElementById('generatedLink');
+            generatedLinkContainer.innerHTML = iframeCode;
+
+            // Mostrar el contenedor del reproductor y el botón de copiar enlace
+            generatedLinkContainer.style.display = 'block';
+            document.getElementById('copyLinkButton').style.display = 'inline-block';
+        } else {
+            alert('Por favor, ingrese una URL de video.');
+        }
+    }
+
+    function copyLinkToClipboard() {
+        var url = document.getElementById('videoUrl').value;
+        if (url) {
+            var encodedUrl = encodeBase64(url);
+            var playerPageUrl = "URL_REPRO_LINK?videoUrl=" + encodedUrl;
+
+            navigator.clipboard.writeText(playerPageUrl).then(function() {
+                alert('Enlace copiado al portapapeles!');
+            }, function(err) {
+                alert('Error al copiar el enlace: ' + err);
+            });
+        } else {
+            alert('No hay ningún enlace para copiar.');
+        }
+    }
+    </script>
+</body>
+</html>
