@@ -339,14 +339,12 @@ body {
     }
 }
 
-const url_movie = await urlmovie(videoUrl);
+const url_movie = urlmovie(videoUrl);
         var player = jwplayer("player-container");
         player.setup({
             title: "",
             sources: [{
                 file: url_movie,
-                type: "mp4",
-                label: "Video"
             }],
             width: "100vw",
             height: "99vh",
@@ -429,4 +427,4 @@ player.on("play", function() {
     } else {
         alert('Solicite autorización para utilizar este Servidor');
     }
-  </script>
+</script>
