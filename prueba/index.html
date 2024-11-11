@@ -310,120 +310,103 @@ body {
 <div id="player-container"></div>
 <script type="text/javascript">
     function getParameterByName(name) {
-        var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
-            results = regex.exec(window.location.href);
+        const regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)');
+        const results = regex.exec(window.location.href);
         if (!results) return null;
         if (!results[2]) return '';
         return decodeURIComponent(results[2].replace(/\+/g, ' '));
     }
 
-    function decodeBase64(str) {
-        return decodeURIComponent(atob(str).split('').map(function(c) {
-            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        }).join(''));
-    }
-
-    var videoUrl = getParameterByName('videoUrl');
+    const videoUrl = getParameterByName('v');
     if (videoUrl) {
-        videoUrl = decodeBase64(videoUrl);
         async function urlmovie(id) {
-    try {
-        const response = await fetch(`https://corsproxy.io/?http://flixstream.site/api_streamwish.php?key=teste&v=${encodeURIComponent(id)}`);
-        const data = await response.json();
-        
-        if (!response.ok || !data.result) throw new Error('URL de video no encontrada');
-        
-        return data.result.url;
-    } catch (error) {
-        console.log(error);
-    }
-}
+            try {
+                const response = await fetch(`https://corsproxy.io/?http://flixstream.site/api_streamwish.php?key=teste&v=${encodeURIComponent(id)}`);
+                const data = await response.json();
 
-const url_movie = urlmovie(videoUrl);
-        var player = jwplayer("player-container");
-        player.setup({
-            title: "",
-            sources: [{
-                file: url_movie,
-            }],
-            width: "100vw",
-            height: "99vh",
-            stretching: "",
-            primary: "html5",
-            autostart: "false",
-            preload: "auto",
-            playbackRateControls: true,
-            image: "https://i.ibb.co/f2BsH4H/1000014449-removebg-preview.png", // Puedes agregar una imagen predeterminada si es necesario
-            advertising: {
-                client: "vast",
-                tag: ""
-            },
-            skin: {
-                name: "At-Canales"
-            },
-            logo: {
-                file: "https://i.ibb.co/0sxZc99/1000015964-removebg-preview.png"
-            },
-            captions: {
-                color: "#2271B3",
-                fontSize: 14,
-                backgroundOpacity: 0.5,
-                fontfamily: "Poppins",
-                edgeStyle: "raised"
-            },
-            tracks: [{
-                file: "",
-                label: "spa a2",
-                kind: "captions"
-            }]
-        });
-
-        // Ocultar elementos de carga después de un tiempo
-        setTimeout(function() {
-            $("#loader").delay(1000).fadeOut("slow");
-            $("#loader-wrapper").delay(1500).fadeOut("slow");
-        }, 2000);
-
-        // Manejo de errores del reproductor
-        player.on("setupError", function() {
-            swal("Server Error!", "Please contact us to fix it asap. Thank you!", "error");
-        });
-
-        player.on("error", function() {
-            swal("Server Error!", "Please contact us to fix it asap. Thank you!", "error");
-            
-        });
-      
-        // Activar pantalla completa cuando el reproductor está listo
-player.on("play", function() {
-    // Obtener el contenedor del reproductor
-    var container = player.getContainer();
-
-    // Comprobar si la API de Fullscreen está disponible
-    if (container) {
-        // Intentar entrar en pantalla completa de la manera más estándar posible
-        try {
-            if (container.requestFullscreen) {
-                container.requestFullscreen();
-            } else if (container.mozRequestFullScreen) { // Firefox
-                container.mozRequestFullScreen();
-            } else if (container.webkitRequestFullscreen) { // Chrome, Safari y Opera
-                container.webkitRequestFullscreen();
-            } else if (container.msRequestFullscreen) { // IE/Edge
-                container.msRequestFullscreen();
-            } else {
-                console.error("La API de pantalla completa no está soportada en este navegador.");
+                if (!response.ok || !data.result) throw new Error('URL de video no encontrada');
+                
+                return data.result.url;
+            } catch (error) {
+                console.log(error);
             }
-        } catch (err) {
-            console.error("Error al intentar activar pantalla completa:", err);
         }
-    } else {
-        console.error("El contenedor del reproductor no está disponible.");
-    }
-});
 
+        urlmovie(videoUrl).then(url_movie => {
+            var player = jwplayer("player-container");
+            player.setup({
+                title: "",
+                sources: [{
+                    file: url_movie, // Reproduce el archivo .m3u8 obtenido
+                }],
+                width: "100vw",
+                height: "99vh",
+                stretching: "fill",
+                primary: "html5",
+                autostart: false,
+                preload: "auto",
+                playbackRateControls: true,
+                image: "https://i.ibb.co/f2BsH4H/1000014449-removebg-preview.png",
+                advertising: {
+                    client: "vast",
+                    tag: ""
+                },
+                skin: {
+                    name: "At-Canales"
+                },
+                logo: {
+                    file: "https://i.ibb.co/0sxZc99/1000015964-removebg-preview.png"
+                },
+                captions: {
+                    color: "#2271B3",
+                    fontSize: 14,
+                    backgroundOpacity: 0.5,
+                    fontfamily: "Poppins",
+                    edgeStyle: "raised"
+                },
+                tracks: [{
+                    file: "",
+                    label: "spa a2",
+                    kind: "captions"
+                }]
+            });
 
+            setTimeout(function() {
+                $("#loader").delay(1000).fadeOut("slow");
+                $("#loader-wrapper").delay(1500).fadeOut("slow");
+            }, 2000);
 
+            player.on("setupError", function() {
+                swal("Server Error!", "Please contact us to fix it asap. Thank you!", "error");
+            });
+
+            player.on("error", function() {
+                swal("Server Error!", "Please contact us to fix it asap. Thank you!", "error");
+            });
+
+            player.on("play", function() {
+                var container = player.getContainer();
+                if (container) {
+                    try {
+                        if (container.requestFullscreen) {
+                            container.requestFullscreen();
+                        } else if (container.mozRequestFullScreen) {
+                            container.mozRequestFullScreen();
+                        } else if (container.webkitRequestFullscreen) {
+                            container.webkitRequestFullscreen();
+                        } else if (container.msRequestFullscreen) {
+                            container.msRequestFullscreen();
+                        } else {
+                            console.error("La API de pantalla completa no está soportada en este navegador.");
+                        }
+                    } catch (err) {
+                        console.error("Error al intentar activar pantalla completa:", err);
+                    }
+                } else {
+                    console.error("El contenedor del reproductor no está disponible.");
+                }
+            });
+        });
     } else {
         alert('Solicite autorización para utilizar este Servidor');
     }
