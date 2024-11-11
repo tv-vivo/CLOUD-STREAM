@@ -158,7 +158,7 @@
         var url = document.getElementById('videoUrl').value;
         if (url) {
             var encodedUrl = encodeBase64(url);
-            var playerPageUrl = "URL_REPRO_LINK?videoUrl=" + encodedUrl;
+            var playerPageUrl = "https://cloudstream-pro.onrender.com/prueba" + encodedUrl;
 
             navigator.clipboard.writeText(playerPageUrl).then(function() {
                 alert('Enlace copiado al portapapeles!');
