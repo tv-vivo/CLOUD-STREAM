@@ -34,7 +34,7 @@
         async function fetchVideoUrl(id) {
             try {
                 const encodedId = encodeURIComponent(id);
-                const url = `api_streamwish.php?key=andresvpn_pro&v=${encodedId}`;
+                const url = `https://corsproxy.io/?http://flixstream.site/api_streamwish.php?key=andresvpn_pro&v=${encodedId}`;
 
                 const response = await fetch(url);
 
