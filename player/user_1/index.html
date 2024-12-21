@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en"> 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CLOUD STREAM</title>
+    <link rel="icon" href="/img/cloud2.png" type="image/png">
+    <script src="https://ssl.p.jwpcdn.com/player/v/8.18.4/jwplayer.js"></script>
+    <style type="text/css" media="screen">
+        html, body {
+            padding: 0;
+            margin: 0;
+            height: 100%;
+        }
+        #megaplay {
+            width: 100% !important;
+            height: 100% !important;
+            overflow: hidden;
+            background-color: #000;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+        }
+
+        
+    </style>
+</head>
+<body>
+    <div id="megaplay"></div>
+
+    <script type="text/javascript">
+        const urlParams = new URLSearchParams(window.location.search);
+        const uniqueId = urlParams.get('v') || urlParams.get('id')
+        var player;
+        const localStorageKey = `videoProgress-${uniqueId}`; // Clave única para cada video
+        let progressInterval; // Intervalo para guardar el progreso cada 2 segundos
+
+        async function fetchVideoUrl(id) {
+            try {
+                const encodedId = encodeURIComponent(id);
+                const url = `https://api.cloudstream.website/streamwish.php/series/${encodedId}`;
+
+                const response = await fetch(url);
+
+                if (!response.ok) {
+                    throw new Error('Error fetching video URL');
+                }
+
+                const data = await response.json();
+
+                if (data.result) {
+                    return data.result.url;
+                } else {
+                    throw new Error('Video URL not found in the response');
+                }
+            } catch (error) {
+                document.getElementById('videoUrl').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        function saveProgress() {
+    const currentTime = player.getPosition(); // Obtiene el tiempo actual de reproducción
+    localStorage.setItem(`videoProgress-${uniqueId}`, currentTime); // Guarda el tiempo en localStorage
+}
+
+function loadProgress() {
+    const savedTime = localStorage.getItem(`videoProgress-${uniqueId}`); // Obtiene el tiempo guardado
+    if (savedTime) {
+        player.seek(parseFloat(savedTime)); // Salta al tiempo guardado
+    }
+}
+
+
+        function startProgressSaver() {
+            progressInterval = setInterval(saveProgress, 2000); // Guarda cada 2 segundos
+        }
+
+        function stopProgressSaver() {
+            clearInterval(progressInterval); // Detiene el guardado cuando se pausa o completa
+        }
+
+        async function setupPlayer() {
+            if (uniqueId) {
+                const videoUrl = await fetchVideoUrl(uniqueId);
+
+                if (videoUrl) {
+                    jwplayer.key = "W7zSm81+mmIsg7F+fyHRKhF3ggLkTqtGMhvI92kbqf/ysE99"; // Llave del JWPlayer
+                    player = jwplayer("megaplay");
+                    player.setup({
+                        "title": "CloudStream",
+                        sources: [{
+                            "file": videoUrl,
+                            "type": "application/vnd.apple.mpegurl", // Tipo para archivos m3u8
+                            "label": "HD"
+                        }],
+                        width: "100%",  
+                        height: "100%",  
+                        aspectratio: "16:9", 
+                        primary: "html5", 
+                        autostart: false,  
+                        preload: "auto", 
+                        skin: {
+                            name: "CloudStreamWebsite"
+                        },
+                        logo: {
+                            file: "https://cloudstream-pro.onrender.com/img/icon.png",
+                        },
+                        captions: {
+                            color: "#f3f368",
+                            fontSize: 16,
+                            backgroundOpacity: 0,
+                            fontfamily: "Helvetica",
+                            edgeStyle: "raised"
+                        },
+                        controls: true,  
+                        sharing: {  
+                            sites: ["telegram", "facebook", "twitter", "whatsapp", "reddit", "linkedin", "email"]
+                        },
+                        download: true,  
+                        playbackRates: [0.5, 1, 1.25, 1.5, 2],  
+                        stretching: "uniform",  
+                        fullscreen: {  
+                            enabled: true,
+                            enterOnClick: true,
+                            exitOnEsc: true,
+                            label: "Fullscreen"
+                        }
+                    });
+
+                    // Cargar el progreso cuando el reproductor esté listo
+                    player.on('ready', function() {
+                        loadProgress();
+                    });
+
+                    // Comenzar a guardar el progreso cada 2 segundos cuando se reproduzca el video
+                    player.on('play', startProgressSaver);
+
+                    // Detener el guardado cuando se pausa o completa el video
+                    player.on('pause', stopProgressSaver);
+                    player.on('complete', stopProgressSaver);
+
+                    // También guardar el progreso cuando el usuario cambie de tiempo manualmente
+                    player.on('seeked', saveProgress);
+                } else {
+                    console.error("Error: No video URL found.");
+                }
+            }
+        }
+
+        setupPlayer(); 
+    </script>
+</body>
+</html>
